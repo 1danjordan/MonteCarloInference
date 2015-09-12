@@ -16,7 +16,7 @@ midSquare <- function(int){
     start <- mid - floor(n/2)
   }
   
-  end <- start + n
+  end <- start + n - 1
   
   res <- as.numeric(substr(int, start, end))
   return(res)
