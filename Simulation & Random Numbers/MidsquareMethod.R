@@ -21,3 +21,5 @@ midSquare <- function(int){
   res <- as.numeric(substr(int, start, end))
   return(res)
 }
+
+midSquare(3792)

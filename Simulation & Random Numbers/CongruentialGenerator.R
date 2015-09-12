@@ -21,9 +21,9 @@ ani.options(convert ="C:\Program Files\ImageMagick-6.9.2-Q16\convert.exe")
 
 saveGIF(
   
-  for(i in 1:50){
+  for(i in 1:200){
   
-    top <- i*20
+    top <- i*5
     res <- data.frame(unif = sim[1:top,])
     
     p <- ggplot(data = res, aes(res$unif)) + 
@@ -39,7 +39,7 @@ saveGIF(
     print(p)
 },
 
-movie.name = "Congruential_Number_Generator.gif", interval = 0.2, nmax = 50, outdir = getwd(), imgdir=getwd(), tempdir=getwd()
+movie.name = "Congruential_Number_Generator.gif", interval = 0.05, nmax = 50, outdir = getwd(), imgdir=getwd(), tempdir=getwd()
 
 
 )
