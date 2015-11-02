@@ -1,0 +1,86 @@
+---
+title: "Monte Carlo Inference - Lab 2"
+author: "Daniel Jordan"
+date: "17 October 2015"
+output: pdf_document
+---
+
+This lab details methods of simulating distributions using the method of inversion and rejection sampling. The first histogram is an approximation of the gamma distribution by distribution taking 2000 samples random uniform samples and inputting them to the inverted gamma distribution. 
+
+```{r}
+#Monte Carlo Inference
+#Lab 2 - Simulation
+
+packages <- c("ggplot2", "ggthemes")
+lapply(packages, library, character.only = TRUE)
+
+# Inverted exponential distribution
+inv.exp <- function(n, lambda){
+  
+  u <- runif(n)
+  x <- -log(1-u)/lambda
+  return(x)
+}
+
+# Sampling from the Gamma distn
+# In this case k must be an integer to simplifiy
+# the distn down to the sum of exponential distns
+
+inv.gamma.int <- function(n, k, lambda) {
+  
+  x <- matrix(inv.exp(n*k, lambda), ncol= k)
+  apply(x, 1, sum)
+  
+}
+
+y <- inv.gamma.int(2000, 4, 0.5)
+df <- data.frame(y)
+
+ggplot(df, aes(x = y)) + 
+  geom_histogram(aes(y =..density..), fill = cols[1]) + 
+  stat_function(fun = dgamma, size = 1, args = list(rate = 0.5, shape = 4), color = cols[2]) +
+  xlab("Sample Value") + ylab("Density") +
+  theme_fivethirtyeight()
+
+ks.test(y, "pgamma", rate = 0.5, shape = 4)
+
+```
+The orange line is the plot of a gamma distribution with a shape of 4 and rate of 0.5. As we can see, the sampled distribution is well apporximated using the inversion method.
+
+Below is the plot of a sample gamma distribution with shape = 4.5, rate = 3. We use rejection sampling with a known distribution - gamma with shape = 4.5, rate = 3. 
+
+```{r, echo = FALSE}
+# Rejection Sampling of gamma distn
+
+rejectionSampling <- function(n, k, l, m){
+  
+  r <- NULL
+    
+  for(i in 1:n){
+    
+    t <- 0
+    while(t < 1) {
+      
+      x <- m * inv.gamma.int(1, floor(k), l - 1)        
+      y <- runif(1,0, 1)
+      if(y*x < dgamma(x, shape = k, rate = l)){
+        r[i] <- x
+        t <- 1
+      }
+    }
+  }
+  return(r)
+}
+
+res <- data.frame(x = rejectionSampling(5000, 4.5, 3, 1.1))
+
+ggplot(res, aes(x = x)) + 
+  geom_histogram(aes(y =..density..), fill = cols[1]) + 
+  stat_function(fun = dgamma, size = 1, args = list(rate = 3, shape = 4.5), color = cols[2]) +
+  xlab("Sample Value") + ylab("Density") +
+  theme_fivethirtyeight()
+
+ks.test(res$x, "pgamma", rate = 3, shape = 4.5)
+
+```
+From the plot we can see the target distribution is well approximated by our sample.
